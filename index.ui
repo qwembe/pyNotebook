@@ -30,7 +30,7 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>3</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="stackedWidgetPage1">
      <widget class="QWidget" name="verticalLayoutWidget">
@@ -175,7 +175,7 @@
               <x>89</x>
               <y>179</y>
               <width>193</width>
-              <height>100</height>
+              <height>104</height>
              </rect>
             </property>
             <layout class="QVBoxLayout" name="verticalLayout_3">
@@ -219,7 +219,7 @@
              <rect>
               <x>10</x>
               <y>120</y>
-              <width>331</width>
+              <width>356</width>
               <height>41</height>
              </rect>
             </property>
@@ -354,7 +354,7 @@
            <rect>
             <x>40</x>
             <y>30</y>
-            <width>225</width>
+            <width>237</width>
             <height>231</height>
            </rect>
           </property>
@@ -616,7 +616,7 @@
        <rect>
         <x>130</x>
         <y>0</y>
-        <width>286</width>
+        <width>301</width>
         <height>38</height>
        </rect>
       </property>
@@ -680,7 +680,7 @@
          <x>0</x>
          <y>10</y>
          <width>121</width>
-         <height>431</height>
+         <height>444</height>
         </rect>
        </property>
        <layout class="QVBoxLayout" name="verticalLayout_4">
