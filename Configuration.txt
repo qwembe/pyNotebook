@@ -1,7 +1,0 @@
-
-addDatabase("QMYSQL")
-setHostName("127.0. 0.1")
-setDatabaseName("dbnote")
-setUserName("pynotebook")
-setPassword("12345")
-setPort.(3306)
