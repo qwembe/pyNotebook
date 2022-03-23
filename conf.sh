@@ -1,4 +1,4 @@
-HostName=127.0.0.1
+HostName=192.168.0.5
 DatabaseName=dbnote
 UserName=pynotebook
 Password=12345

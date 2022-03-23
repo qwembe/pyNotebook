@@ -25,7 +25,8 @@ class App(QtGui.QMainWindow):
     def __init__(self, parent=None):
         QtGui.QWidget.__init__(self, parent)
 
-        self.con = init()
+        self.con = init("conf.sh")
+        self.model = None
         self.msUi = Ui_MainWindow()
         self.msUi.setupUi(self)
         self.initUI()
@@ -87,6 +88,7 @@ class App(QtGui.QMainWindow):
                 f.close()
             if login_pass is not None:
                 # print login_pass["user"].decode("UTF-8")
+                # print login_pass["password"].decode("UTF-8")
                 self.auth(None, username=login_pass["user"].decode("UTF-8"),
                           passwd=login_pass["password"].decode("UTF-8"))
 
@@ -102,16 +104,15 @@ class App(QtGui.QMainWindow):
             if self.model.rowCount() == 0:
                 self.updateDialog()
 
-
     def moveTo(self, index):
         stackedWidget = self.msUi.stackedWidget
         stackedWidget.setCurrentIndex(index)
 
     def auth(self, arg, username=None, passwd=None):
+        self.initTable()
         d = self.checkPass(username, passwd)
         if d is not None:
             self.msUi.ChangeUserBtn.setText(d)
-            self.initTable()
             self.moveTo(3)
             self.birthdayReminder()
 
@@ -151,7 +152,7 @@ class App(QtGui.QMainWindow):
             record.setValue(2, date)
             if not model.insertRecord(-1, record):
                 self.showMsg("Incorrect login or password", QMessageBox.Information)
-            print model.lastError().text()
+            # print model.lastError().text()
             self.moveTo(0)
         else:
             self.showMsg("Incorrect password", QMessageBox.Warning)
@@ -161,7 +162,8 @@ class App(QtGui.QMainWindow):
             user = self.msUi.NameLine.text()
             password = self.msUi.PasswordLine.text()
         query = QSqlQuery()
-        query.exec_("SELECT * FROM auth WHERE Username = '%s' AND Pass = '%s' " % (user, password))
+        print query.exec_("SELECT * FROM auth WHERE Username = '%s' AND Pass = '%s' " % (user, password))
+        # print query.isValid()
         if query.size() == 0:
             self.showMsg("Access denied", QMessageBox.Information)
             return None
@@ -191,7 +193,7 @@ class App(QtGui.QMainWindow):
             while query.next():
                 # print query.value(2).toDate()
                 d = query.value(2).toDate()
-                d = QDate(year,d.month(), d.day())
+                d = QDate(year, d.month(), d.day())
                 if today <= d <= nextWeek:
                     wins.append(query.value(0).toString())
 
@@ -220,7 +222,6 @@ class App(QtGui.QMainWindow):
         selectionModel.currentRowChanged.connect(self.changeDialog)
         selectionModel.currentChanged.connect(self.changeDialog)
         self.table.entered.connect(self.updateDialog)
-
 
         self.show()
 
@@ -318,6 +319,8 @@ class App(QtGui.QMainWindow):
                 self.showMsg("Duplicat!", QMessageBox.Warning)
 
     def showMsg(self, msg, type):
+        if self.model is not None:
+            print self.model.lastError().text()
         msgBox = QMessageBox()
         msgBox.setIcon(type)
         msgBox.setText(msg)
@@ -334,8 +337,34 @@ def init(config=None):
         con.setUserName("pynotebook")
         con.setPassword("12345")
         con.setPort(3306)
+    else:
+        with open(config) as conf:
+            con = QSqlDatabase.addDatabase("QMYSQL")
+            con.setHostName(conf.readline().split("=", 2)[1].rstrip())
+            con.setDatabaseName(conf.readline().split("=", 2)[1].rstrip())
+            con.setUserName(conf.readline().split("=", 2)[1].rstrip())
+            con.setPassword(conf.readline().split("=", 2)[1].rstrip())
+            con.setPort(int(conf.readline().split("=", 2)[1].rstrip()))
 
     if con.open():
+        query = QSqlQuery()
+        query.exec_('''
+            CREATE TABLE IF NOT EXISTS auth 
+            ( Username VARCHAR(100) NOT NULL ,
+              Pass VARCHAR(100) NOT NULL,
+              dateob DATE NOT NULL,
+              PRIMARY KEY (Username)) 
+              CHARACTER SET utf8mb4
+              COLLATE utf8mb4_general_ci;
+            
+            CREATE TABLE IF NOT EXISTS notebook 
+            ( Username VARCHAR(100) NOT NULL ,
+              tel VARCHAR(100) NOT NULL,
+              dateob DATE NOT NULL,
+              PRIMARY KEY (Username, tel , dateob))
+              CHARACTER SET utf8mb4
+              COLLATE utf8mb4_general_ci;''')
+
         return con
     else:
         return None
